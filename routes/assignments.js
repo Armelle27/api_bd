@@ -15,7 +15,9 @@ function getAssignments(req, res){
 
 // AVEC PAGINATION
 function getAssignments(req, res) {
-    var aggregateQuery = Assignment.aggregate();
+    var aggregateQuery = Assignment.aggregate(
+     [{ $match : { rendu : true } }] 
+    );
 
     Assignment.aggregatePaginate(
       aggregateQuery,
@@ -29,6 +31,27 @@ function getAssignments(req, res) {
         }
   
         res.send(assignments);
+      }
+    );
+  }
+
+  function getAssignmentsNonRendus(req, res) {
+    var aggregateQuery = Assignment.aggregate(
+     [{ $match : { rendu : false } }] 
+    );
+
+    Assignment.aggregatePaginate(
+      aggregateQuery,
+      {
+        page: parseInt(req.query.page) || 1,
+        limit: parseInt(req.query.limit) || 10,
+      },
+      (err, assignmentsNr) => {
+        if (err) {
+          res.send(err);
+        }
+  
+        res.send(assignmentsNr);
       }
     );
   }
@@ -46,9 +69,16 @@ function getAssignment(req, res){
 function postAssignment(req, res){
     let assignment = new Assignment();
     assignment.id = req.body.id;
+    assignment.auteur =  req.body.auteur;
     assignment.nom = req.body.nom;
+    assignment.matiere = req.body.matiere;
+    assignment.note = req.body.note;
     assignment.dateDeRendu = req.body.dateDeRendu;
     assignment.rendu = req.body.rendu;
+    assignment.remarques = req.body.remarques;
+    assignment.photoProf = req.body.photoProf;
+    assignment.photoMat - req.body.photoMat;
+    
 
     console.log("POST assignment reçu :");
     console.log(assignment)
@@ -91,4 +121,4 @@ function deleteAssignment(req, res) {
 
 
 
-module.exports = { getAssignments, postAssignment, getAssignment, updateAssignment, deleteAssignment };
+module.exports = { getAssignments,getAssignmentsNonRendus, postAssignment, getAssignment, updateAssignment, deleteAssignment };
